@@ -136,8 +136,7 @@ class Vz_exif {
   {
 	  ob_start(); 
 	  ?>
-The VZ EXIF Plugin extracts EXIF data from an image
-and makes it available in your templates.
+The VZ Exif Plugin extracts Exif data from an image and makes it available in your templates.
 
 TAG PAIR:
 =========
