@@ -7,7 +7,7 @@ $plugin_info = array(
   'pi_version' => '1.0',
   'pi_author' => 'Eli Van Zoeren',
   'pi_author_url' => 'http://elivz.com/',
-  'pi_description' => 'Extract Exif information from an image',
+  'pi_description' => 'Extract the Exif information from an image',
   'pi_usage' => Vz_exif::usage()
   );
 
@@ -30,10 +30,24 @@ class Vz_exif {
   function Vz_exif()
   {
 		$this->EE =& get_instance();
-		$tagdata = $this->EE->TMPL->tagdata;
-    $tag = $this->EE->TMPL->fetch_param('tag');
     
-		return $this->get_exif($tag);
+    $data = array(array(
+		  'size' => $this->get_exif('FileSize'),
+		  'height' => $this->get_exif('Height'),
+		  'width' => $this->get_exif('Width'),
+		  'aperture' => $this->get_exif('ApertureFNumber'),
+		  'model' => $this->get_exif('Model'),
+		  'make' => $this->get_exif('Make'),
+		  'focal_length' => $this->get_exif('FocalLength'),
+		  'focal_length_equiv' => $this->get_exif('FocalLengthIn35mmFilm'),
+		  'software' => $this->get_exif('Software'),
+		  'shutter' => $this->get_exif('ExposureTime'),
+		  'iso' => $this->get_exif('ISOSpeedRatings'),
+		  'date' => $this->get_exif('DateTime'),
+		  'flash' => $this->get_exif('Flash'),
+    ));
+    
+		$this->return_data = $this->EE->TMPL->parse_variables($this->EE->TMPL->tagdata, $data);
   }
   
   /*
