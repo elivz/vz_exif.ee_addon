@@ -30,8 +30,11 @@ class Vz_exif {
   function Vz_exif()
   {
 		$this->EE =& get_instance();
-    
-    $data = array(array(
+  }
+
+	function exif()
+	{
+		$data = array(array(
 		  'size' => $this->get_exif('FileSize'),
 		  'height' => $this->get_exif('Height'),
 		  'width' => $this->get_exif('Width'),
@@ -47,15 +50,15 @@ class Vz_exif {
 		  'flash' => $this->get_exif('Flash'),
     ));
     
-		$this->return_data = $this->EE->TMPL->parse_variables($this->EE->TMPL->tagdata, $data);
-  }
+		return $this->EE->TMPL->parse_variables($this->EE->TMPL->tagdata, $data);
+	}
   
   /*
-   * Catch any other calls and use the method name called
+   * Catch any other calls and use the method name called`
    * as the EXIF value to retrieve
    */
   function size() { return $this->get_exif('FileSize'); }
-  function height() { return $this->get_exif('Height'); }
+	function height() { return $this->get_exif('Height'); }
   function width() { return $this->get_exif('Width'); }
   function aperture() { return $this->get_exif('ApertureFNumber'); }
   function model() { return $this->get_exif('Model'); }
@@ -77,27 +80,36 @@ class Vz_exif {
 	{
     $image = $this->EE->TMPL->fetch_param('image');
     $root = $this->EE->TMPL->fetch_param('path');
-    
-		$image = str_ireplace('http://'.$_SERVER['HTTP_HOST'], '', $image);
-		$file = '';
-			
-		if ($root)
-		{
-			// Add the path to the image file to get the full path
-			$file = $this->EE->functions->remove_double_slashes($root.$image);
-		}
-		elseif (substr($image, 0, 1) == '/')
-		{
-			// The image url is relative to the web root
-			$site_relative_url = trim(str_ireplace('http://'.$_SERVER['HTTP_HOST'], '', $this->EE->functions->fetch_site_index(1)), '/');
-			$root_path = str_ireplace($site_relative_url, '', FCPATH);
-			$file = $this->EE->functions->remove_double_slashes($root_path.$image);
-		}
 		
-		// Get the data from the file
-		if (!is_readable($file)) return '<!-- Could not read the file '.$image.'. -->';
-		$exif = exif_read_data($file);
-		//print_r($exif); die();
+		// Initialize the cache
+    $cache =& $this->EE->session->cache['vz_exif'][$root.$image];
+		
+    // Only get the Exif data once per page load
+    if (!isset($cache))
+    {
+			$image = str_ireplace('http://'.$_SERVER['HTTP_HOST'], '', $image);
+			$file = '';
+				
+			if ($root)
+			{
+				// Add the path to the image file to get the full path
+				$file = $this->EE->functions->remove_double_slashes($root.$image);
+			}
+			elseif (strncmp($image, '/', 1) == 0)
+			{
+				// The image url is relative to the web root
+				$site_relative_url = trim(str_ireplace('http://'.$_SERVER['HTTP_HOST'], '', $this->EE->functions->fetch_site_index(1)), '/');
+				$root_path = str_ireplace($site_relative_url, '', FCPATH);
+				$file = $this->EE->functions->remove_double_slashes($root_path.$image);
+			}
+			
+			// Get the data from the file
+			if (!is_readable($file)) return '<!-- Could not read the file '.$image.'. -->';
+			$cache = exif_read_data($file);
+			echo 'test';
+		}
+
+		$exif = $cache;
 		
 		// Get the value we need from the array
 		switch ($tag) {
