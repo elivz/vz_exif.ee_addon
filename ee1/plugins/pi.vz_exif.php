@@ -128,11 +128,34 @@ class Vz_exif {
 			case 'Make': case 'Model':
 				return isset($exif[$tag]) ? ucwords(strtolower($exif[$tag])) : '';
 			case 'FocalLength':
-				if (isset($exif[$tag])) eval('$length = '.$exif[$tag].'; return $length;');
-				return '';
+				$length = '';
+				if (isset($exif[$tag])) eval('$length = '.$exif[$tag].';');
+				return $length;
+			case 'ExposureTime':
+				$val = '';
+				if (isset($exif[$tag]))
+				{
+					if (strstr($exif[$tag], '/'))
+					{
+						// Reduce the fraction
+						$val_parts = explode('/', $exif[$tag]);
+						$val = '1/' . ($val_parts[1] / $val_parts[0]);
+					}
+					elseif ($exif[$tag] < 1)
+					{
+						// Turn the decimal into a fraction
+						$val = '1/' . (1 / $exif[$tag]);
+					}
+					else
+					{
+						$val = $exif[$tag];
+					}
+				}
+				return $val;
 			case 'DateTime':
 				$format = $TMPL->fetch_param('format');
 				$date = strtotime(isset($exif['DateTimeOriginal']) ? $exif['DateTimeOriginal'] : $exif['DateTime']);
+				echo $date;
 				return $format ? $LOC->decode_date($format, $date) : $date;
 			case 'Flash':
 				return !@empty($exif['Flash']) ? 'Yes' : '';
