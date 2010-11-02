@@ -170,7 +170,7 @@ The VZ Exif Plugin extracts Exif data from an image and makes it available in yo
 TAG PAIR:
 =========
 
-The following code will output <em>all</em> the available Exif data in a list. You don't need to include all the variables in your template.
+The following code will output <em>all</em> the available Exif data in a list. You don't need to include all the variables in your template. You can also use any of the variables in a conditional statement ({if aperture}Aperture: {aperture}{/if}).
 
 {exp:vz_exif:exif image="{photo}"}
 <ul>
@@ -179,7 +179,7 @@ The following code will output <em>all</em> the available Exif data in a list. Y
 	<li>Taken on: {date format="%F %d, %Y"}</li>
 	<li>Camera brand: {make}</li>
 	<li>Camera: {model}</li>
-	<li>Focal length: {focal_length}mm (<abbr title="35mm equivalent">{focal_length_equiv}mm-e</abbr>)</li>
+	<li>Focal length: {focal_length}mm{if focal_length_equiv} (<abbr title="35mm equivalent">{focal_length_equiv}mm-e</abbr>){/if}</li>
 	<li>Aperture: {aperture}</li>
 	<li>Shutter speed: {shutter} seconds</li>
 	<li>ISO: {iso}</li>
