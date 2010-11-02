@@ -21,17 +21,13 @@ $plugin_info = array(
  */
 
 class Vz_exif {
-
-  function Vz_exif()
-  {
-  }
 	
 	/*
 	 * Tag pair: {exp:vz_exif}Template data{/exp:vz_exif}
 	 */
 	function exif()
 	{
-		global $TMPL;
+		global $TMPL, $FNS;
 		$tagdata = $TMPL->tagdata;
 		
 		$data = array(
@@ -50,6 +46,10 @@ class Vz_exif {
 		  'flash' => $this->get_exif('Flash'),
     );
     
+    // Run the conditional statements
+    $tagdata = $FNS->prep_conditionals($tagdata, $data);
+    
+    // Replace the tags with their values
     foreach ($data as $tag => $value)
 		{
 			if (strstr($tagdata, LD.$tag.RD))
@@ -113,7 +113,7 @@ class Vz_exif {
 			}
 			
 			// Get the data from the file
-			if (!is_readable($file)) return '<!-- Could not read the file '.$image.'. -->';
+			if (@exif_imagetype($file) != IMAGETYPE_JPEG) return '<!-- The file "'.$image.'" could not be found or was not in jpeg format -->';
 			$cache = exif_read_data($file);
 		}
 
@@ -124,7 +124,7 @@ class Vz_exif {
 			case 'FileSize':
 				return isset($exif[$tag]) ? round($exif[$tag] / 1024) : '';
 			case 'Height': case 'Width': case 'ApertureFNumber':
-				return isset($exif['COMPUTED'][$tag]) ? $exif['COMPUTED'][$tag] : 'none';
+				return isset($exif['COMPUTED'][$tag]) ? $exif['COMPUTED'][$tag] : '';
 			case 'Make': case 'Model':
 				return isset($exif[$tag]) ? ucwords(strtolower($exif[$tag])) : '';
 			case 'FocalLength':

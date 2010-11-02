@@ -1,9 +1,9 @@
-VZ EXIF
+VZ Exif
 =======
 
 The VZ Exif Plugin extracts Exif data from an image and makes it available in your templates.
 
-TAG PAIR:
+Tag Pair:
 ---------
 
 The following code will output <em>all</em> the available Exif data in a list. You don't need to include all the variables in your template.
@@ -24,14 +24,14 @@ The following code will output <em>all</em> the available Exif data in a list. Y
 	</ul>
 	{/exp:vz_exif:exif}
 
-SINGLE TAGS:
+Single Tags:
 ------------
 
 You can also get each piece of data using a single tag in the form: {exp:vz_exif:[exif_tag_to_get]}. The Exif data is cached after the first time you get it, so the performance cost for this method should be insignificant.
 
 	<p>The following photo was taken with a {exp:vz_exif:model image="{photo}"} camera.</p>
 
-PARAMETERS:
+Parameters:
 -----------
 
 image= (required)
