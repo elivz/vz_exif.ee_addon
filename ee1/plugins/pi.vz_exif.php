@@ -1,13 +1,13 @@
 <?php
 
 $plugin_info = array(
-  'pi_name' => 'VZ Exif',
-  'pi_version' => '1.0',
-  'pi_author' => 'Eli Van Zoeren',
-  'pi_author_url' => 'http://elivz.com/',
-  'pi_description' => 'Extract the Exif information from an image',
-  'pi_usage' => Vz_exif::usage()
-  );
+    'pi_name' => 'VZ Exif',
+    'pi_version' => '1.0',
+    'pi_author' => 'Eli Van Zoeren',
+    'pi_author_url' => 'http://elivz.com/',
+    'pi_description' => 'Extract the Exif information from an image',
+    'pi_usage' => Vz_exif::usage()
+);
 
 /**
  * Memberlist Class
@@ -21,101 +21,101 @@ $plugin_info = array(
  */
 
 class Vz_exif {
-	
-	/*
-	 * Tag pair: {exp:vz_exif}Template data{/exp:vz_exif}
-	 */
-	function exif()
-	{
-		global $TMPL, $FNS;
-		$tagdata = $TMPL->tagdata;
-		
-		$data = array(
-		  'size' => $this->get_exif('FileSize'),
-		  'height' => $this->get_exif('Height'),
-		  'width' => $this->get_exif('Width'),
-		  'date' => $this->get_exif('DateTime'),
-		  'make' => $this->get_exif('Make'),
-		  'model' => $this->get_exif('Model'),
-		  'focal_length' => $this->get_exif('FocalLength'),
-		  'focal_length_equiv' => $this->get_exif('FocalLengthIn35mmFilm'),
-		  'aperture' => $this->get_exif('ApertureFNumber'),
-		  'shutter' => $this->get_exif('ExposureTime'),
-		  'iso' => $this->get_exif('ISOSpeedRatings'),
-		  'software' => $this->get_exif('Software'),
-		  'flash' => $this->get_exif('Flash'),
-    );
     
-    // Run the conditional statements
-    $tagdata = $FNS->prep_conditionals($tagdata, $data);
+    /*
+     * Tag pair: {exp:vz_exif}Template data{/exp:vz_exif}
+     */
+    function exif()
+    {
+        global $TMPL, $FNS;
+        $tagdata = $TMPL->tagdata;
+        
+        $data = array(
+            'size' => $this->get_exif('FileSize'),
+            'height' => $this->get_exif('Height'),
+            'width' => $this->get_exif('Width'),
+            'date' => $this->get_exif('DateTime'),
+            'make' => $this->get_exif('Make'),
+            'model' => $this->get_exif('Model'),
+            'focal_length' => $this->get_exif('FocalLength'),
+            'focal_length_equiv' => $this->get_exif('FocalLengthIn35mmFilm'),
+            'aperture' => $this->get_exif('ApertureFNumber'),
+            'shutter' => $this->get_exif('ExposureTime'),
+            'iso' => $this->get_exif('ISOSpeedRatings'),
+            'software' => $this->get_exif('Software'),
+            'flash' => $this->get_exif('Flash'),
+        );
     
-    // Replace the tags with their values
-    foreach ($data as $tag => $value)
-		{
-			if (strstr($tagdata, LD.$tag.RD))
-			{
-				$tagdata = str_replace(LD.$tag.RD, $value, $tagdata);
-			}
-		}
-    
-		return $tagdata;
-	}
+        // Run the conditional statements
+        $tagdata = $FNS->prep_conditionals($tagdata, $data);
+        
+        // Replace the tags with their values
+        foreach ($data as $tag => $value)
+        {
+            if (strstr($tagdata, LD.$tag.RD))
+            {
+                $tagdata = str_replace(LD.$tag.RD, $value, $tagdata);
+            }
+        }
+        
+        return $tagdata;
+    }
   
-  /*
-   * Catch any other calls and use the method name called`
-   * as the EXIF value to retrieve
-   */
-  function size() { return $this->get_exif('FileSize'); }
-	function height() { return $this->get_exif('Height'); }
-  function width() { return $this->get_exif('Width'); }
-  function date() { return $this->get_exif('DateTime'); }
-  function make() { return $this->get_exif('Make'); }
-  function model() { return $this->get_exif('Model'); }
-  function focal_length() { return $this->get_exif('FocalLength'); }
-  function focal_length_equiv() { return $this->get_exif('FocalLengthIn35mmFilm'); }
-  function aperture() { return $this->get_exif('ApertureFNumber'); }
-  function shutter() { return $this->get_exif('ExposureTime'); }
-  function iso() { return $this->get_exif('ISOSpeedRatings'); }
-  function software() { return $this->get_exif('Software'); }
-  function flash() { return $this->get_exif('Flash'); }
+    /*
+     * Catch any other calls and use the method name called`
+     * as the EXIF value to retrieve
+     */
+    function size() { return $this->get_exif('FileSize'); }
+    function height() { return $this->get_exif('Height'); }
+    function width() { return $this->get_exif('Width'); }
+    function date() { return $this->get_exif('DateTime'); }
+    function make() { return $this->get_exif('Make'); }
+    function model() { return $this->get_exif('Model'); }
+    function focal_length() { return $this->get_exif('FocalLength'); }
+    function focal_length_equiv() { return $this->get_exif('FocalLengthIn35mmFilm'); }
+    function aperture() { return $this->get_exif('ApertureFNumber'); }
+    function shutter() { return $this->get_exif('ExposureTime'); }
+    function iso() { return $this->get_exif('ISOSpeedRatings'); }
+    function software() { return $this->get_exif('Software'); }
+    function flash() { return $this->get_exif('Flash'); }
 
 	/*
 	 * This is the heart of the plugin.
 	 * Get the exif data from the image
 	 * and return in in an array
 	 */
-	private function get_exif($tag)
-	{
-		global $TMPL, $FNS, $SESS, $LOC;
-		
-    $image = $TMPL->fetch_param('image');
-    $root = $TMPL->fetch_param('path');
-		
-		// Initialize the cache
-    $cache =& $SESS->cache['vz_exif'][$root.$image];
-		
-    // Only get the Exif data once per page load
-    if (!isset($cache))
+    private function get_exif($tag)
     {
-			$image = str_ireplace('http://'.$_SERVER['HTTP_HOST'], '', $image);
-			$file = '';
-				
-			if ($root)
-			{
-				// Add the path to the image file to get the full path
-				$file = $FNS->remove_double_slashes($root.$image);
-			}
-			elseif (strncmp($image, '/', 1) == 0)
-			{
-				// The image url is relative to the web root
-				$root_path = (array_key_exists('DOCUMENT_ROOT', $_ENV)) ? $_ENV['DOCUMENT_ROOT'] : $_SERVER['DOCUMENT_ROOT'];
-				$file = $FNS->remove_double_slashes($root_path.$image);
-			}
-			
-			// Get the data from the file
-			if (@exif_imagetype($file) != IMAGETYPE_JPEG) return '<!-- The file "'.$image.'" could not be found or was not in jpeg format -->';
-			$cache = exif_read_data($file);
-		}
+		global $TMPL, $FNS, $SESS, $LOC;
+        	
+        $image = $TMPL->fetch_param('image');
+        $root = $TMPL->fetch_param('path');
+        	
+        // Initialize the cache
+        $cache =& $SESS->cache['vz_exif'][$root.$image];
+        	
+        // Only get the Exif data once per page load
+        if (!isset($cache))
+        {
+            $image = str_ireplace('http://'.$_SERVER['HTTP_HOST'], '', $image);
+            $file = '';
+            	
+            if ($root)
+            {
+            	// Add the path to the image file to get the full path
+            	$file = $FNS->remove_double_slashes($root.$image);
+            }
+            elseif (strncmp($image, '/', 1) == 0)
+            {
+            	// The image url is relative to the web root
+            	$root_path = rtrim( (array_key_exists('DOCUMENT_ROOT', $_ENV)) ? $_ENV['DOCUMENT_ROOT'] : $_SERVER['DOCUMENT_ROOT'], '/\\');
+            	$file = $root_path.$image;
+            }
+            
+            // Get the data from the file
+            if (@exif_imagetype($file) != IMAGETYPE_JPEG) return '<!-- The file "'.$image.'" could not be found or was not in jpeg format -->';
+            $cache = exif_read_data($file);
+    	}
 
 		$exif = $cache;
 		
@@ -164,10 +164,10 @@ class Vz_exif {
 	}
 
 
-  function usage()
-  {
-	  ob_start(); 
-	  ?>
+    function usage()
+    {
+        ob_start(); 
+        ?>
 The VZ Exif Plugin extracts Exif data from an image and makes it available in your templates.
 
 TAG PAIR:
@@ -207,11 +207,11 @@ This is the url of the image to get Exif data from. The image needs to be on you
 root= (optional)
 VZ Exif will do its best to determine the server path to the image you give it, but in some cases you may want to specify the root path manually. The root url will simply be prepended to the image url (minus the domain name, if there is one).
 
-	  <?php
-	  $buffer = ob_get_contents();
-	  ob_end_clean(); 
-	  return $buffer;
-  }
+        <?php
+        $buffer = ob_get_contents();
+        ob_end_clean(); 
+        return $buffer;
+    }
 
 }
 
