@@ -115,7 +115,6 @@ class Vz_exif {
     	}
     
     	$exif = $cache;
-		print_r($exif);
     	
     	// Get the value we need from the array
     	switch ($tag) {
@@ -155,7 +154,7 @@ class Vz_exif {
     			$date = strtotime(isset($exif['DateTimeOriginal']) ? $exif['DateTimeOriginal'] : $exif['DateTime']);
     			return $format ? $this->EE->localize->decode_date($format, $date, false) : $date;
     		case 'Flash':
-    			return !@empty($exif['Flash'] && $exif['Flash']) ? 'Yes' : '';
+    			return (!@empty($exif['Flash']) && $exif['Flash']) ? 'Yes' : '';
     		default:
     			return isset($exif[$tag]) ? $exif[$tag] : '';
     	}
