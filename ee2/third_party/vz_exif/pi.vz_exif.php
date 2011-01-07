@@ -4,7 +4,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 $plugin_info = array(
     'pi_name' => 'VZ Exif',
-    'pi_version' => '1.0.1',
+    'pi_version' => '1.0.2',
     'pi_author' => 'Eli Van Zoeren',
     'pi_author_url' => 'http://elivz.com/',
     'pi_description' => 'Extract the Exif information from an image',
@@ -152,7 +152,7 @@ class Vz_exif {
     		case 'DateTime':
     			$format = $this->EE->TMPL->fetch_param('format');
     			$date = strtotime(isset($exif['DateTimeOriginal']) ? $exif['DateTimeOriginal'] : $exif['DateTime']);
-    			return $format ? $this->EE->localize->decode_date($format, $date) : $date;
+    			return $format ? $this->EE->localize->decode_date($format, $date, false) : $date;
     		case 'Flash':
     			return !@empty($exif['Flash']) ? 'Yes' : '';
     		default:

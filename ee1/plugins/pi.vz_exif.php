@@ -2,7 +2,7 @@
 
 $plugin_info = array(
     'pi_name' => 'VZ Exif',
-    'pi_version' => '1.0',
+    'pi_version' => '1.0.2',
     'pi_author' => 'Eli Van Zoeren',
     'pi_author_url' => 'http://elivz.com/',
     'pi_description' => 'Extract the Exif information from an image',
@@ -31,30 +31,42 @@ class Vz_exif {
         $tagdata = $TMPL->tagdata;
         
         $data = array(
-            'size' => $this->get_exif('FileSize'),
-            'height' => $this->get_exif('Height'),
-            'width' => $this->get_exif('Width'),
-            'date' => $this->get_exif('DateTime'),
-            'make' => $this->get_exif('Make'),
-            'model' => $this->get_exif('Model'),
-            'focal_length' => $this->get_exif('FocalLength'),
-            'focal_length_equiv' => $this->get_exif('FocalLengthIn35mmFilm'),
-            'aperture' => $this->get_exif('ApertureFNumber'),
-            'shutter' => $this->get_exif('ExposureTime'),
-            'iso' => $this->get_exif('ISOSpeedRatings'),
-            'software' => $this->get_exif('Software'),
-            'flash' => $this->get_exif('Flash'),
+            'size' => 'FileSize',
+            'height' => 'Height',
+            'width' => 'Width',
+            'date' => 'DateTime',
+            'make' => 'Make',
+            'model' => 'Model',
+            'focal_length' => 'FocalLength',
+            'focal_length_equiv' => 'FocalLengthIn35mmFilm',
+            'aperture' => 'ApertureFNumber',
+            'shutter' => 'ExposureTime',
+            'iso' => 'ISOSpeedRatings',
+            'software' => 'Software',
+            'flash' => 'Flash',
         );
     
         // Run the conditional statements
         $tagdata = $FNS->prep_conditionals($tagdata, $data);
         
         // Replace the tags with their values
-        foreach ($data as $tag => $value)
+        foreach ($data as $tag => $key)
         {
-            if (strstr($tagdata, LD.$tag.RD))
+            if ( preg_match_all("/".LD.$tag."( format=['\"](.*?)['\"])?".RD."/", $tagdata, $matches, PREG_SET_ORDER) )
             {
-                $tagdata = str_replace(LD.$tag.RD, $value, $tagdata);
+                foreach ($matches as $match)
+                {
+                    if ($match[2])
+                    {
+                        // Special case for date formatting
+                        $value = $this->get_exif($key, $match[2]);  
+                    }
+                    else
+                    {
+                        $value = $this->get_exif($key);
+                    }
+                    $tagdata = str_replace($match[0], $value, $tagdata);
+                }
             }
         }
         
@@ -84,7 +96,7 @@ class Vz_exif {
 	 * Get the exif data from the image
 	 * and return in in an array
 	 */
-    private function get_exif($tag)
+    private function get_exif($tag, $format=false)
     {
 		global $TMPL, $FNS, $SESS, $LOC;
         	
@@ -153,9 +165,9 @@ class Vz_exif {
 				}
 				return $val;
 			case 'DateTime':
-				$format = $TMPL->fetch_param('format');
+				$format = $format ? $format : $TMPL->fetch_param('format');
 				$date = strtotime(isset($exif['DateTimeOriginal']) ? $exif['DateTimeOriginal'] : $exif['DateTime']);
-				return $format ? $LOC->decode_date($format, $date) : $date;
+				return $format ? $LOC->decode_date($format, $date, false) : $date;
 			case 'Flash':
 				return !@empty($exif['Flash']) ? 'Yes' : '';
 			default:
