@@ -169,7 +169,7 @@ class Vz_exif {
 				$date = strtotime(isset($exif['DateTimeOriginal']) ? $exif['DateTimeOriginal'] : $exif['DateTime']);
 				return $format ? $LOC->decode_date($format, $date, false) : $date;
 			case 'Flash':
-				return !@empty($exif['Flash']) ? 'Yes' : '';
+				return (!@empty($exif['Flash'] && $exif['Flash']) ?'Yes' : '';
 			default:
 				return isset($exif[$tag]) ? $exif[$tag] : '';
 		}
