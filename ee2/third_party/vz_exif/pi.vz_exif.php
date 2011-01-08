@@ -152,9 +152,11 @@ class Vz_exif {
     		case 'DateTime':
     			$format = $this->EE->TMPL->fetch_param('format');
     			$date = strtotime(isset($exif['DateTimeOriginal']) ? $exif['DateTimeOriginal'] : $exif['DateTime']);
-    			return $format ? $this->EE->localize->decode_date($format, $date, false) : $date;
+    			return $format ? $this->EE->localize->decode_date($format, $date) : $date;
     		case 'Flash':
-    			return (!@empty($exif['Flash']) && $exif['Flash']) ? 'Yes' : '';
+    			return (!@empty($exif['Flash']) && substr(decbin($exif['Flash']), -1) == 1)
+                        ? 'Yes'
+                        : '';
     		default:
     			return isset($exif[$tag]) ? $exif[$tag] : '';
     	}
