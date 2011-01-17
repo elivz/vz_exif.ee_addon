@@ -4,7 +4,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 $plugin_info = array(
     'pi_name' => 'VZ Exif',
-    'pi_version' => '1.0.2',
+    'pi_version' => '1.0.3',
     'pi_author' => 'Eli Van Zoeren',
     'pi_author_url' => 'http://elivz.com/',
     'pi_description' => 'Extract the Exif information from an image',
@@ -136,7 +136,16 @@ class Vz_exif {
     				{
     					// Reduce the fraction
     					$val_parts = explode('/', $exif[$tag]);
-    					$val = '1/' . ($val_parts[1] / $val_parts[0]);
+    					if ($val_parts[0] >= $val_parts[1])
+    					{
+    					   // Longer than 1 second
+    					   $val = $val_parts[0] / $val_parts[1];
+    					}
+    					else
+    					{
+        					// Less than one second
+        					$val = '1/' . ($val_parts[1] / $val_parts[0]);
+        				}
     				}
     				elseif ($exif[$tag] < 1)
     				{
