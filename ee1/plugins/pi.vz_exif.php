@@ -2,7 +2,7 @@
 
 $plugin_info = array(
     'pi_name' => 'VZ Exif',
-    'pi_version' => '1.0.3',
+    'pi_version' => '1.0.4',
     'pi_author' => 'Eli Van Zoeren',
     'pi_author_url' => 'http://elivz.com/',
     'pi_description' => 'Extract the Exif information from an image',
@@ -175,7 +175,18 @@ class Vz_exif {
 				return $val;
 			case 'DateTime':
 				$format = $format ? $format : $TMPL->fetch_param('format');
-				$date = strtotime(isset($exif['DateTimeOriginal']) ? $exif['DateTimeOriginal'] : $exif['DateTime']);
+                if (isset($exif['DateTimeOriginal'])
+                {
+                    $date = strtotime($exif['DateTimeOriginal']);
+                }
+                elseif (isset($exif['DateTime'])
+                {
+                    $date = strtotime($exif['DateTime']);
+                }
+                else
+                {
+                    return '';
+                }
 				return $format ? $LOC->decode_date($format, $date) : $date;
 			case 'Flash':
     			return (!@empty($exif['Flash']) && substr(decbin($exif['Flash']), -1) == 1)

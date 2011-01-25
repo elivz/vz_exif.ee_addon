@@ -4,7 +4,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 $plugin_info = array(
     'pi_name' => 'VZ Exif',
-    'pi_version' => '1.0.3',
+    'pi_version' => '1.0.4',
     'pi_author' => 'Eli Van Zoeren',
     'pi_author_url' => 'http://elivz.com/',
     'pi_description' => 'Extract the Exif information from an image',
@@ -118,56 +118,67 @@ class Vz_exif {
     	
     	// Get the value we need from the array
     	switch ($tag) {
-    		case 'FileSize':
-    			return isset($exif[$tag]) ? round($exif[$tag] / 1024) : '';
-    		case 'Height': case 'Width': case 'ApertureFNumber':
-    			return isset($exif['COMPUTED'][$tag]) ? $exif['COMPUTED'][$tag] : '';
-    		case 'Make': case 'Model':
-    			return isset($exif[$tag]) ? ucwords(strtolower($exif[$tag])) : '';
-    		case 'FocalLength':
-    			$length = '';
-    			if (isset($exif[$tag])) eval('$length = '.$exif[$tag].';');
-    			return $length;
-    		case 'ExposureTime':
-    			$val = '';
-    			if (isset($exif[$tag]))
-    			{
-    				if (strstr($exif[$tag], '/'))
-    				{
-    					// Reduce the fraction
-    					$val_parts = explode('/', $exif[$tag]);
-    					if ($val_parts[0] >= $val_parts[1])
-    					{
-    					   // Longer than 1 second
-    					   $val = $val_parts[0] / $val_parts[1];
-    					}
-    					else
-    					{
-        					// Less than one second
-        					$val = '1/' . ($val_parts[1] / $val_parts[0]);
-        				}
-    				}
-    				elseif ($exif[$tag] < 1)
-    				{
-    					// Turn the decimal into a fraction
-    					$val = '1/' . (1 / $exif[$tag]);
-    				}
-    				else
-    				{
-    					$val = $exif[$tag];
-    				}
-    			}
-    			return $val;
-    		case 'DateTime':
-    			$format = $this->EE->TMPL->fetch_param('format');
-    			$date = strtotime(isset($exif['DateTimeOriginal']) ? $exif['DateTimeOriginal'] : $exif['DateTime']);
-    			return $format ? $this->EE->localize->decode_date($format, $date) : $date;
-    		case 'Flash':
-    			return (!@empty($exif['Flash']) && substr(decbin($exif['Flash']), -1) == 1)
+            case 'FileSize':
+            	return isset($exif[$tag]) ? round($exif[$tag] / 1024) : '';
+            case 'Height': case 'Width': case 'ApertureFNumber':
+            	return isset($exif['COMPUTED'][$tag]) ? $exif['COMPUTED'][$tag] : '';
+            case 'Make': case 'Model':
+            	return isset($exif[$tag]) ? ucwords(strtolower($exif[$tag])) : '';
+            case 'FocalLength':
+            	$length = '';
+            	if (isset($exif[$tag])) eval('$length = '.$exif[$tag].';');
+            	return $length;
+            case 'ExposureTime':
+                $val = '';
+            	if (isset($exif[$tag]))
+            	{
+            		if (strstr($exif[$tag], '/'))
+            		{
+            			// Reduce the fraction
+            			$val_parts = explode('/', $exif[$tag]);
+            			if ($val_parts[0] >= $val_parts[1])
+            			{
+            			   // Longer than 1 second
+            			   $val = $val_parts[0] / $val_parts[1];
+            			}
+            			else
+            			{
+            				// Less than one second
+            				$val = '1/' . ($val_parts[1] / $val_parts[0]);
+            			}
+            		}
+            		elseif ($exif[$tag] < 1)
+            		{
+            			// Turn the decimal into a fraction
+            			$val = '1/' . (1 / $exif[$tag]);
+            		}
+            		else
+            		{
+            			$val = $exif[$tag];
+            		}
+            	}
+            	return $val;
+            case 'DateTime':
+                $format = $this->EE->TMPL->fetch_param('format');
+                if (isset($exif['DateTimeOriginal'])
+                {
+                    $date = strtotime($exif['DateTimeOriginal']);
+                }
+                elseif (isset($exif['DateTime'])
+                {
+                    $date = strtotime($exif['DateTime']);
+                }
+                else
+                {
+                    return '';
+                }
+                return $format ? $this->EE->localize->decode_date($format, $date) : $date;
+            case 'Flash':
+            	return (!@empty($exif['Flash']) && substr(decbin($exif['Flash']), -1) == 1)
                         ? 'Yes'
                         : '';
-    		default:
-    			return isset($exif[$tag]) ? $exif[$tag] : '';
+            default:
+                return isset($exif[$tag]) ? $exif[$tag] : '';
     	}
     }
 
