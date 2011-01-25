@@ -175,11 +175,11 @@ class Vz_exif {
 				return $val;
 			case 'DateTime':
 				$format = $format ? $format : $TMPL->fetch_param('format');
-                if (isset($exif['DateTimeOriginal'])
+                if (isset($exif['DateTimeOriginal']))
                 {
                     $date = strtotime($exif['DateTimeOriginal']);
                 }
-                elseif (isset($exif['DateTime'])
+                elseif (isset($exif['DateTime']))
                 {
                     $date = strtotime($exif['DateTime']);
                 }
