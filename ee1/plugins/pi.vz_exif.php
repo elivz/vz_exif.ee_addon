@@ -2,7 +2,7 @@
 
 $plugin_info = array(
     'pi_name' => 'VZ Exif',
-    'pi_version' => '1.0.4',
+    'pi_version' => '1.0.5',
     'pi_author' => 'Eli Van Zoeren',
     'pi_author_url' => 'http://elivz.com/',
     'pi_description' => 'Extract the Exif information from an image',
@@ -10,13 +10,11 @@ $plugin_info = array(
 );
 
 /**
- * Memberlist Class
- *
  * @package			ExpressionEngine
  * @category		Plugin
  * @author			Eli Van Zoeren
- * @copyright		Copyright (c) 2010, Eli Van Zoeren
- * @link				http://elivz.com/blog/single/vz_exif
+ * @copyright		Copyright (c) 2011, Eli Van Zoeren
+ * @link			http://elivz.com/blog/single/vz_exif
  * @license			http://creativecommons.org/licenses/by-sa/3.0/ Attribution-Share Alike 3.0 Unported/
  */
 
@@ -44,6 +42,8 @@ class Vz_exif {
             'iso' => 'ISOSpeedRatings',
             'software' => 'Software',
             'flash' => 'Flash',
+            'latitude' => 'GPSLatitude',
+            'longitude' => 'GPSLongitude'
         );
     
         // Run the conditional statements
@@ -90,6 +90,8 @@ class Vz_exif {
     function iso() { return $this->get_exif('ISOSpeedRatings'); }
     function software() { return $this->get_exif('Software'); }
     function flash() { return $this->get_exif('Flash'); }
+    function latitude() { return $this->get_exif('GPSLatitude'); }
+    function longitude() { return $this->get_exif('GPSLongitude'); }
 
 	/*
 	 * This is the heart of the plugin.
@@ -189,14 +191,32 @@ class Vz_exif {
                 }
 				return $format ? $LOC->decode_date($format, $date) : $date;
 			case 'Flash':
-    			return (!@empty($exif['Flash']) && substr(decbin($exif['Flash']), -1) == 1)
-                        ? 'Yes'
-                        : '';
+    			return (!@empty($exif['Flash']) && substr(decbin($exif['Flash']), -1) == 1) ? 'Yes' : '';
+            case 'GPSLatitude': case 'GPSLongitude':
+                return isset($exif[$tag]) ? $this->parse_geo($exif[$tag], $exif[$tag.'Ref']) : '';
 			default:
 				return isset($exif[$tag]) ? $exif[$tag] : '';
 		}
 	}
-
+    
+    // Parse an array representing a geographic coordinate 
+    // (hours, minutes, seconds) into a single decimal
+    private function parse_geo($geo_array, $ref)
+    {
+        // Convert the fractions to decimals
+        foreach ($geo_array as $element)
+        {
+            $parts = explode('/', $element);
+            $elements[] = $parts[0] / $parts[1];
+        }
+        print_r($elements);
+        $decimal = $elements[0] + ($elements[1] / 60) + ($elements[2] / 3600);
+        if ($ref == 'W' || $ref == 'S')
+        {
+            $decimal *= -1;
+        }
+        return $decimal;
+    }
 
     function usage()
     {
@@ -222,6 +242,7 @@ The following code will output <em>all</em> the available Exif data in a list. Y
 	<li>ISO: {iso}</li>
 	<li>Processed with: {software}</li>
 	<li>Flash used: {flash}</li>
+	<li>Latitude: {latitude} / Longitude: {longitude}</li>
 </ul>
 {/exp:vz_exif:exif}
 
