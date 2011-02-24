@@ -194,7 +194,6 @@ class Vz_exif {
             $parts = explode('/', $element);
             $elements[] = $parts[0] / $parts[1];
         }
-        print_r($elements);
         $decimal = $elements[0] + ($elements[1] / 60) + ($elements[2] / 3600);
         if ($ref == 'W' || $ref == 'S')
         {
