@@ -4,7 +4,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 $plugin_info = array(
     'pi_name' => 'VZ Exif',
-    'pi_version' => '1.0.5',
+    'pi_version' => '1.0.6',
     'pi_author' => 'Eli Van Zoeren',
     'pi_author_url' => 'http://elivz.com/',
     'pi_description' => 'Extract the Exif information from an image',
@@ -88,7 +88,7 @@ class Vz_exif {
 	private function get_exif($tag)
 	{
         $image = $this->EE->TMPL->fetch_param('image');
-        $root = $this->EE->TMPL->fetch_param('path');
+        $root = $this->EE->TMPL->fetch_param('path') ? $this->EE->TMPL->fetch_param('path') : $this->EE->config->item('vz_exif_root');
         	
         // Initialize the cache
         $cache =& $this->EE->session->cache['vz_exif'][$root.$image];
@@ -112,7 +112,7 @@ class Vz_exif {
             }
             
             // Get the data from the file
-            if (@exif_imagetype($file) != IMAGETYPE_JPEG) return '<!-- The file "'.$image.'" could not be found or was not in jpeg format -->';
+            if (@exif_imagetype($file) != IMAGETYPE_JPEG) return '<!-- The file "'.$file.'" could not be found or was not in jpeg format -->';
             $cache = exif_read_data($file);
     	}
     
@@ -174,6 +174,7 @@ class Vz_exif {
                 {
                     return '';
                 }
+                $date += $this->EE->config->item('vz_exif_offset');
                 return $format ? $this->EE->localize->decode_date($format, $date) : $date;
             case 'Flash':
             	return (!@empty($exif['Flash']) && substr(decbin($exif['Flash']), -1) == 1) ? 'Yes' : '';
@@ -245,6 +246,18 @@ This is the url of the image to get Exif data from. The image needs to be on you
 
 root= (optional)
 VZ Exif will do its best to determine the server path to the image you give it, but in some cases you may want to specify the root path manually. The root url will simply be prepended to the image url (minus the domain name, if there is one).
+
+CONFIG.PHP VARIABLES
+====================
+
+You can optionally set two variables in Expression Engine's config.php file:
+
+$config['vz_exif_offset'] = 3600;
+The number of seconds to add to the Exif timestamp. In some cases, the timestamps will be consistently off by a certain amount. This variable allows you to correct for that. Can be be a negative number.
+
+$config['vz_exif_root'] = "/var/www/public/";
+Sets a default server root. This is exactly the same as the tag root parameter, but it saves you from adding that parameter to every tag. The root parameter in your template will override this variable.
+
 
         <?php
         $buffer = ob_get_contents();
