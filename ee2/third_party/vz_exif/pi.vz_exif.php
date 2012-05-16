@@ -4,7 +4,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 $plugin_info = array(
     'pi_name' => 'VZ Exif',
-    'pi_version' => '1.0.6',
+    'pi_version' => '1.0.7',
     'pi_author' => 'Eli Van Zoeren',
     'pi_author_url' => 'http://elivz.com/',
     'pi_description' => 'Extract the Exif information from an image',
@@ -21,6 +21,8 @@ $plugin_info = array(
  */
 
 class Vz_exif {
+
+    public $return_data;
 	
     /*
      * Tag pair: {exp:vz_exif}Template data{/exp:vz_exif}
@@ -28,6 +30,8 @@ class Vz_exif {
     function Vz_exif()
     {
         $this->EE =& get_instance();
+        
+        $this->return_data = $this->exif();
     }
 
     function exif()
@@ -107,8 +111,7 @@ class Vz_exif {
             elseif (strncmp($image, '/', 1) == 0)
             {
             	// The image url is relative to the web root
-            	$root_path = rtrim( (array_key_exists('DOCUMENT_ROOT', $_ENV)) ? $_ENV['DOCUMENT_ROOT'] : $_SERVER['DOCUMENT_ROOT'], '/\\');
-            	$file = $root_path.$image;
+            	$file = $this->EE->functions->remove_double_slashes(FCPATH.'/'.$image);
             }
             
             // Get the data from the file
