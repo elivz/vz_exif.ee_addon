@@ -4,7 +4,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 $plugin_info = array(
     'pi_name' => 'VZ Exif',
-    'pi_version' => '1.0.7',
+    'pi_version' => '1.0.8',
     'pi_author' => 'Eli Van Zoeren',
     'pi_author_url' => 'http://elivz.com/',
     'pi_description' => 'Extract the Exif information from an image',
@@ -182,7 +182,7 @@ class Vz_exif {
             case 'Flash':
             	return (!@empty($exif['Flash']) && substr(decbin($exif['Flash']), -1) == 1) ? 'Yes' : '';
             case 'GPSLatitude': case 'GPSLongitude':
-                return isset($exif[$tag]) ? $this->parse_geo($exif[$tag], $exif[$tag.'Ref']) : '';
+                return isset($exif[$tag]) && isset($exif[$tag.'Ref']) ? $this->parse_geo($exif[$tag], $exif[$tag.'Ref']) : '';
             default:
                 return isset($exif[$tag]) ? $exif[$tag] : '';
     	}
