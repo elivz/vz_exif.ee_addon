@@ -8,7 +8,7 @@ Tag Pair:
 
 The following code will output <em>all</em> the available Exif data in a list. You don't need to include all the variables in your template. You can also use any of the variables in a conditional statement ({if aperture}Aperture: {aperture}{/if}).
 
-	{exp:vz_exif:exif image="{photo}"}
+	{exp:vz_exif image="{photo}"}
 	<ul>
 		<li>File Size: {size}kb</li>
 		<li>Dimensions: {width}x{height}</li>
@@ -22,7 +22,7 @@ The following code will output <em>all</em> the available Exif data in a list. Y
 		<li>Processed with: {software}</li>
 		<li>Flash used: {flash}</li>
 	</ul>
-	{/exp:vz_exif:exif}
+	{/exp:vz_exif}
 
 Single Tags:
 ------------

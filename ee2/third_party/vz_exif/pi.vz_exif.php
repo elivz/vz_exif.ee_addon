@@ -3,41 +3,39 @@
 if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 $plugin_info = array(
-    'pi_name' => 'VZ Exif',
-    'pi_version' => '1.0.8',
-    'pi_author' => 'Eli Van Zoeren',
-    'pi_author_url' => 'http://elivz.com/',
+    'pi_name'        => 'VZ Exif',
+    'pi_version'     => '1.0.9',
+    'pi_author'      => 'Eli Van Zoeren',
+    'pi_author_url'  => 'http://elivz.com/',
     'pi_description' => 'Extract the Exif information from an image',
-    'pi_usage' => Vz_exif::usage()
+    'pi_usage'       => Vz_exif::usage()
 );
 
 /**
- * @package			ExpressionEngine
- * @category		Plugin
- * @author			Eli Van Zoeren
- * @copyright		Copyright (c) 2011, Eli Van Zoeren
- * @link			http://elivz.com/blog/single/vz_exif
- * @license			http://creativecommons.org/licenses/by-sa/3.0/ Attribution-Share Alike 3.0 Unported/
+ * @package         ExpressionEngine
+ * @category        Plugin
+ * @author          Eli Van Zoeren
+ * @copyright       Copyright (c) 2014, Eli Van Zoeren
+ * @link            https://github.com/elivz/vz_exif.ee_addon
+ * @license         http://creativecommons.org/licenses/by-sa/3.0/ Attribution-Share Alike 3.0 Unported/
  */
 
 class Vz_exif {
 
     public $return_data;
-	
+
     /*
      * Tag pair: {exp:vz_exif}Template data{/exp:vz_exif}
      */
-    function Vz_exif()
+    function __construct()
     {
-        $this->EE =& get_instance();
-        
         $this->return_data = $this->exif();
     }
 
     function exif()
     {
-        $tagdata = $this->EE->TMPL->tagdata;
-        
+        $tagdata = ee()->TMPL->tagdata;
+
         // Get all the data
         $data = array(array(
             'size' => $this->get_exif('FileSize'),
@@ -56,14 +54,14 @@ class Vz_exif {
             'latitude' => $this->get_exif('GPSLatitude'),
             'longitude' => $this->get_exif('GPSLongitude')
         ));
-        
+
         // Run the conditional statements
-        $tagdata = $this->EE->functions->prep_conditionals($tagdata, $data[0]);
-        
+        $tagdata = ee()->functions->prep_conditionals($tagdata, $data[0]);
+
         // Replace the tags with their values
-        return $this->EE->TMPL->parse_variables($tagdata, $data);
+        return ee()->TMPL->parse_variables($tagdata, $data);
     }
-  
+
     /*
     * Catch any other calls and use the method name called`
     * as the EXIF value to retrieve
@@ -84,87 +82,89 @@ class Vz_exif {
     function latitude() { return $this->get_exif('GPSLatitude'); }
     function longitude() { return $this->get_exif('GPSLongitude'); }
 
-	/*
-	 * This is the heart of the plugin.
-	 * Get the exif data from the image
-	 * and return in in an array
-	 */
-	private function get_exif($tag)
-	{
-        $image = $this->EE->TMPL->fetch_param('image');
-        $root = $this->EE->TMPL->fetch_param('path') ? $this->EE->TMPL->fetch_param('path') : $this->EE->config->item('vz_exif_root');
-        	
+    /*
+     * This is the heart of the plugin.
+     * Get the exif data from the image
+     * and return in in an array
+     */
+    private function get_exif($tag)
+    {
+        ee()->load->helper('string');
+
+        $image = ee()->TMPL->fetch_param('image');
+        $root = ee()->TMPL->fetch_param('path') ? ee()->TMPL->fetch_param('path') : ee()->config->item('vz_exif_root');
+
         // Initialize the cache
-        $cache =& $this->EE->session->cache['vz_exif'][$root.$image];
-        	
+        $cache =& ee()->session->cache['vz_exif'][$root.$image];
+
         // Only get the Exif data once per page load
         if (!isset($cache))
         {
             $image = str_ireplace('http://'.$_SERVER['HTTP_HOST'], '', $image);
             $file = '';
-            	
+
             if ($root)
             {
-            	// Add the path to the image file to get the full path
-            	$file = $this->EE->functions->remove_double_slashes($root.$image);
+                // Add the path to the image file to get the full path
+                $file = reduce_double_slashes($root.$image);
             }
             elseif (strncmp($image, '/', 1) == 0)
             {
-            	// The image url is relative to the web root
-            	$file = $this->EE->functions->remove_double_slashes(FCPATH.'/'.$image);
+                // The image url is relative to the web root
+                $file = reduce_double_slashes(FCPATH.'/'.$image);
             }
-            
+
             // Get the data from the file
             if (@exif_imagetype($file) != IMAGETYPE_JPEG) return '<!-- The file "'.$file.'" could not be found or was not in jpeg format -->';
             $cache = exif_read_data($file);
-    	}
-    
-    	$exif = $cache;
-    	
-    	// Get the value we need from the array
-    	switch ($tag) {
+        }
+
+        $exif = $cache;
+
+        // Get the value we need from the array
+        switch ($tag) {
             case 'FileSize':
-            	return isset($exif[$tag]) ? round($exif[$tag] / 1024) : '';
+                return isset($exif[$tag]) ? round($exif[$tag] / 1024) : '';
             case 'Height': case 'Width': case 'ApertureFNumber':
-            	return isset($exif['COMPUTED'][$tag]) ? $exif['COMPUTED'][$tag] : '';
+                return isset($exif['COMPUTED'][$tag]) ? $exif['COMPUTED'][$tag] : '';
             case 'Make': case 'Model':
-            	return isset($exif[$tag]) ? ucwords(strtolower($exif[$tag])) : '';
+                return isset($exif[$tag]) ? ucwords(strtolower($exif[$tag])) : '';
             case 'FocalLength':
-            	$length = '';
-            	if (isset($exif[$tag])) eval('$length = '.$exif[$tag].';');
-            	return $length;
+                $length = '';
+                if (isset($exif[$tag])) eval('$length = '.$exif[$tag].';');
+                return $length;
             case 'ExposureTime':
                 $val = '';
-            	if (isset($exif[$tag]))
-            	{
-            		if (strstr($exif[$tag], '/'))
-            		{
-            			// Reduce the fraction
-            			$val_parts = explode('/', $exif[$tag]);
-            			if ($val_parts[0] >= $val_parts[1])
-            			{
-            			   // Longer than 1 second
-            			   $val = $val_parts[0] / $val_parts[1];
-            			}
-            			else
-            			{
-            				// Less than one second
-            				$val = '1/' . ($val_parts[1] / $val_parts[0]);
-            			}
-            		}
-            		elseif ($exif[$tag] < 1)
-            		{
-            			// Turn the decimal into a fraction
-            			$val = '1/' . (1 / $exif[$tag]);
-            		}
-            		else
-            		{
-            			$val = $exif[$tag];
-            		}
-            	}
-            	return $val;
+                if (isset($exif[$tag]))
+                {
+                    if (strstr($exif[$tag], '/'))
+                    {
+                        // Reduce the fraction
+                        $val_parts = explode('/', $exif[$tag]);
+                        if ($val_parts[0] >= $val_parts[1])
+                        {
+                           // Longer than 1 second
+                           $val = $val_parts[0] / $val_parts[1];
+                        }
+                        else
+                        {
+                            // Less than one second
+                            $val = '1/' . ($val_parts[1] / $val_parts[0]);
+                        }
+                    }
+                    elseif ($exif[$tag] < 1)
+                    {
+                        // Turn the decimal into a fraction
+                        $val = '1/' . (1 / $exif[$tag]);
+                    }
+                    else
+                    {
+                        $val = $exif[$tag];
+                    }
+                }
+                return $val;
             case 'DateTime':
-                $format = $this->EE->TMPL->fetch_param('format');
+                $format = ee()->TMPL->fetch_param('format');
                 if (isset($exif['DateTimeOriginal']))
                 {
                     $date = strtotime($exif['DateTimeOriginal']);
@@ -177,18 +177,18 @@ class Vz_exif {
                 {
                     return '';
                 }
-                $date += $this->EE->config->item('vz_exif_offset');
-                return $format ? $this->EE->localize->decode_date($format, $date) : $date;
+                $date += ee()->config->item('vz_exif_offset');
+                return $format ? ee()->localize->decode_date($format, $date) : $date;
             case 'Flash':
-            	return (!@empty($exif['Flash']) && substr(decbin($exif['Flash']), -1) == 1) ? 'Yes' : '';
+                return (!@empty($exif['Flash']) && substr(decbin($exif['Flash']), -1) == 1) ? 'Yes' : '';
             case 'GPSLatitude': case 'GPSLongitude':
                 return isset($exif[$tag]) && isset($exif[$tag.'Ref']) ? $this->parse_geo($exif[$tag], $exif[$tag.'Ref']) : '';
             default:
                 return isset($exif[$tag]) ? $exif[$tag] : '';
-    	}
+        }
     }
-    
-    // Parse an array representing a geographic coordinate 
+
+    // Parse an array representing a geographic coordinate
     // (hours, minutes, seconds) into a single decimal
     private function parse_geo($geo_array, $ref)
     {
@@ -208,7 +208,7 @@ class Vz_exif {
 
     function usage()
     {
-        ob_start(); 
+        ob_start();
         ?>
 The VZ Exif Plugin extracts Exif data from an image and makes it available in your templates.
 
@@ -217,22 +217,22 @@ TAG PAIR:
 
 The following code will output <em>all</em> the available Exif data in a list. You don't need to include all the variables in your template. You can also use any of the variables in a conditional statement ({if aperture}Aperture: {aperture}{/if}).
 
-{exp:vz_exif:exif image="{photo}"}
+{exp:vz_exif image="{photo}"}
 <ul>
-	<li>File Size: {size}kb</li>
-	<li>Dimensions: {width}x{height}</li>
-	<li>Taken on: {date format="%F %d, %Y"}</li>
-	<li>Camera brand: {make}</li>
-	<li>Camera: {model}</li>
-	<li>Focal length: {focal_length}mm{if focal_length_equiv} (<abbr title="35mm equivalent">{focal_length_equiv}mm-e</abbr>){/if}</li>
-	<li>Aperture: {aperture}</li>
-	<li>Shutter speed: {shutter} seconds</li>
-	<li>ISO: {iso}</li>
-	<li>Processed with: {software}</li>
-	<li>Flash used: {flash}</li>
-	<li>Latitude: {latitude} / Longitude: {longitude}</li>
+    <li>File Size: {size}kb</li>
+    <li>Dimensions: {width}x{height}</li>
+    <li>Taken on: {date format="%F %d, %Y"}</li>
+    <li>Camera brand: {make}</li>
+    <li>Camera: {model}</li>
+    <li>Focal length: {focal_length}mm{if focal_length_equiv} (<abbr title="35mm equivalent">{focal_length_equiv}mm-e</abbr>){/if}</li>
+    <li>Aperture: {aperture}</li>
+    <li>Shutter speed: {shutter} seconds</li>
+    <li>ISO: {iso}</li>
+    <li>Processed with: {software}</li>
+    <li>Flash used: {flash}</li>
+    <li>Latitude: {latitude} / Longitude: {longitude}</li>
 </ul>
-{/exp:vz_exif:exif}
+{/exp:vz_exif}
 
 SINGLE TAGS:
 ============
@@ -264,11 +264,11 @@ Sets a default server root. This is exactly the same as the tag root parameter, 
 
         <?php
         $buffer = ob_get_contents();
-        ob_end_clean(); 
+        ob_end_clean();
         return $buffer;
     }
 
 }
 
-/* End of file pi.vz_exif.php */ 
+/* End of file pi.vz_exif.php */
 /* Location: ./system/expressionengine/third_party/vz_exif/pi.vz_exif.php */
