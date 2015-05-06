@@ -27,12 +27,12 @@ class Vz_exif {
     /*
      * Tag pair: {exp:vz_exif}Template data{/exp:vz_exif}
      */
-    function __construct()
+    public function __construct()
     {
         $this->return_data = $this->exif();
     }
 
-    function exif()
+    public function exif()
     {
         $tagdata = ee()->TMPL->tagdata;
 
@@ -66,21 +66,66 @@ class Vz_exif {
     * Catch any other calls and use the method name called`
     * as the EXIF value to retrieve
     */
-    function size() { return $this->get_exif('FileSize'); }
-    function height() { return $this->get_exif('Height'); }
-    function width() { return $this->get_exif('Width'); }
-    function date() { return $this->get_exif('DateTime'); }
-    function make() { return $this->get_exif('Make'); }
-    function model() { return $this->get_exif('Model'); }
-    function focal_length() { return $this->get_exif('FocalLength'); }
-    function focal_length_equiv() { return $this->get_exif('FocalLengthIn35mmFilm'); }
-    function aperture() { return $this->get_exif('ApertureFNumber'); }
-    function shutter() { return $this->get_exif('ExposureTime'); }
-    function iso() { return $this->get_exif('ISOSpeedRatings'); }
-    function software() { return $this->get_exif('Software'); }
-    function flash() { return $this->get_exif('Flash'); }
-    function latitude() { return $this->get_exif('GPSLatitude'); }
-    function longitude() { return $this->get_exif('GPSLongitude'); }
+    public function size() {
+        return $this->get_exif('FileSize');
+    }
+
+    public function height() {
+        return $this->get_exif('Height');
+    }
+
+    public function width() {
+        return $this->get_exif('Width');
+    }
+
+    public function date() {
+        return $this->get_exif('DateTime');
+    }
+
+    public function make() {
+        return $this->get_exif('Make');
+    }
+
+    public function model() {
+        return $this->get_exif('Model');
+    }
+
+    public function focal_length() {
+        return $this->get_exif('FocalLength');
+    }
+
+    public function focal_length_equiv() {
+        return $this->get_exif('FocalLengthIn35mmFilm');
+    }
+
+    public function aperture() {
+        return $this->get_exif('ApertureFNumber');
+    }
+
+    public function shutter() {
+        return $this->get_exif('ExposureTime');
+    }
+
+    public function iso() {
+        return $this->get_exif('ISOSpeedRatings');
+    }
+
+    public function software() {
+        return $this->get_exif('Software');
+    }
+
+    public function flash() {
+        return $this->get_exif('Flash');
+    }
+
+    public function latitude() {
+        return $this->get_exif('GPSLatitude');
+    }
+
+    public function longitude() {
+        return $this->get_exif('GPSLongitude');
+    }
+
 
     /*
      * This is the heart of the plugin.
@@ -131,7 +176,18 @@ class Vz_exif {
                 return isset($exif[$tag]) ? ucwords(strtolower($exif[$tag])) : '';
             case 'FocalLength':
                 $length = '';
-                if (isset($exif[$tag])) eval('$length = '.$exif[$tag].';');
+                if (isset($exif[$tag]))
+                {
+                    $length = $exif[$tag];
+                    if (strpos($exif[$tag], '/'))
+                    {
+                        $parts = explode('/', $length);
+                        if (count($parts) == 2)
+                        {
+                            $length = $parts[0] / $parts[1];
+                        }
+                    }
+                }
                 return $length;
             case 'ExposureTime':
                 $val = '';
@@ -206,10 +262,11 @@ class Vz_exif {
         return $decimal;
     }
 
-    function usage()
+    public static function usage()
     {
         ob_start();
         ?>
+
 The VZ Exif Plugin extracts Exif data from an image and makes it available in your templates.
 
 TAG PAIR:
