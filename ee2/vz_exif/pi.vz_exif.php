@@ -4,7 +4,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 $plugin_info = array(
     'pi_name'        => 'VZ Exif',
-    'pi_version'     => '1.0.9',
+    'pi_version'     => '1.0.10',
     'pi_author'      => 'Eli Van Zoeren',
     'pi_author_url'  => 'http://elivz.com/',
     'pi_description' => 'Extract the Exif information from an image',
