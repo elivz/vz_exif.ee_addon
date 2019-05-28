@@ -37,5 +37,15 @@ Parameters:
 image= (required)
 This is the url of the image to get Exif data from. The image needs to be on your server and in JPEG format. Typically, this will be in the form of a custom field inside your {exp:channels} tag pair.
 
-root= (optional)
+path= (optional)
 VZ Exif will do its best to determine the server path to the image you give it, but in some cases you may want to specify the root path manually. The root url will simply be prepended to the image url (minus the domain name, if there is one).
+
+Configuration Variables:
+------------------------
+
+$config['vz_exif_offset'] = 3600;
+The number of seconds to add to the Exif timestamp. In some cases, the timestamps will be consistently off by a certain amount. This variable allows you to correct for that. Can be be a negative number.
+
+$config['vz_exif_root'] = "/var/www/public/";
+Sets a default server root. This is exactly the same as the tag path parameter, but it saves you from adding that parameter to every tag. The root parameter in your template will override this variable.
+

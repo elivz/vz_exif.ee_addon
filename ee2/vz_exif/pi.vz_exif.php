@@ -2,14 +2,7 @@
 
 if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-$plugin_info = array(
-    'pi_name'        => 'VZ Exif',
-    'pi_version'     => '1.0.10',
-    'pi_author'      => 'Eli Van Zoeren',
-    'pi_author_url'  => 'http://elivz.com/',
-    'pi_description' => 'Extract the Exif information from an image',
-    'pi_usage'       => Vz_exif::usage()
-);
+
 
 /**
  * @package         ExpressionEngine
@@ -142,6 +135,8 @@ class Vz_exif {
         // Initialize the cache
         $cache =& ee()->session->cache['vz_exif'][$root.$image];
 
+
+
         // Only get the Exif data once per page load
         if (!isset($cache))
         {
@@ -262,70 +257,7 @@ class Vz_exif {
         return $decimal;
     }
 
-    public static function usage()
-    {
-        ob_start();
-        ?>
-
-The VZ Exif Plugin extracts Exif data from an image and makes it available in your templates.
-
-TAG PAIR:
-=========
-
-The following code will output <em>all</em> the available Exif data in a list. You don't need to include all the variables in your template. You can also use any of the variables in a conditional statement ({if aperture}Aperture: {aperture}{/if}).
-
-{exp:vz_exif image="{photo}"}
-<ul>
-    <li>File Size: {size}kb</li>
-    <li>Dimensions: {width}x{height}</li>
-    <li>Taken on: {date format="%F %d, %Y"}</li>
-    <li>Camera brand: {make}</li>
-    <li>Camera: {model}</li>
-    <li>Focal length: {focal_length}mm{if focal_length_equiv} (<abbr title="35mm equivalent">{focal_length_equiv}mm-e</abbr>){/if}</li>
-    <li>Aperture: {aperture}</li>
-    <li>Shutter speed: {shutter} seconds</li>
-    <li>ISO: {iso}</li>
-    <li>Processed with: {software}</li>
-    <li>Flash used: {flash}</li>
-    <li>Latitude: {latitude} / Longitude: {longitude}</li>
-</ul>
-{/exp:vz_exif}
-
-SINGLE TAGS:
-============
-
-You can also get each piece of data using a single tag in the form: {exp:vz_exif:[exif_tag_to_get]}. The Exif data is cached after the first time you get it, so the performance cost for this method should be insignificant.
-
-<p>The following photo was taken with a {exp:vz_exif:model image="{photo}"} camera.</p>
-
-PARAMETERS:
-===========
-
-image= (required)
-This is the url of the image to get Exif data from. The image needs to be on your server and in JPEG format. Typically, this will be in the form of a custom field inside your {exp:channels} tag pair.
-
-root= (optional)
-VZ Exif will do its best to determine the server path to the image you give it, but in some cases you may want to specify the root path manually. The root url will simply be prepended to the image url (minus the domain name, if there is one).
-
-CONFIG.PHP VARIABLES
-====================
-
-You can optionally set two variables in Expression Engine's config.php file:
-
-$config['vz_exif_offset'] = 3600;
-The number of seconds to add to the Exif timestamp. In some cases, the timestamps will be consistently off by a certain amount. This variable allows you to correct for that. Can be be a negative number.
-
-$config['vz_exif_root'] = "/var/www/public/";
-Sets a default server root. This is exactly the same as the tag root parameter, but it saves you from adding that parameter to every tag. The root parameter in your template will override this variable.
-
-
-        <?php
-        $buffer = ob_get_contents();
-        ob_end_clean();
-        return $buffer;
-    }
-
 }
 
 /* End of file pi.vz_exif.php */
-/* Location: ./system/expressionengine/third_party/vz_exif/pi.vz_exif.php */
+/* Location: ./system/user/addons/vz_exif/pi.vz_exif.php */
