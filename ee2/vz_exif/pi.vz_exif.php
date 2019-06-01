@@ -130,7 +130,7 @@ class Vz_exif {
         ee()->load->helper('string');
 
         $image = ee()->TMPL->fetch_param('image');
-        $root = ee()->TMPL->fetch_param('path') ? ee()->TMPL->fetch_param('path') : ee()->config->item('vz_exif_root');
+        $root = ee()->TMPL->fetch_param('path') ? ee()->TMPL->fetch_param('path') : ee()->config->item('vz_exif_path');
 
         // Initialize the cache
         $cache =& ee()->session->cache['vz_exif'][$root.$image];
